@@ -73,7 +73,10 @@
                                {:id id
                                 :discarded-overflow-order (:id waste-order)}]))))))))
 
-(defn order-shelf [shelves {:keys [id]}]
+(defn order-shelf
+  "Returns the shelf that contains the order, nil if the order has
+  been discarded."
+  [shelves id]
   (some (fn [[shelf orders]]
           (when (contains? orders id)
             shelf))

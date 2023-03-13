@@ -8,12 +8,18 @@
    [matcher-combinators.test :refer [match?]]
    [tick.core :as tick]))
 
-(defn gen-cooked-order []
-  (gen/generate (spec/gen :kitchen/cooked-order)))
+(defn gen-order [temp]
+  (-> (gen/generate (spec/gen :kitchen/order))
+      (assoc :temp temp)))
+
+(defn gen-cooked-order
+  ([]
+   (gen/generate (spec/gen :kitchen/cooked-order)))
+  ([temp]
+   (assoc (gen-cooked-order) :temp temp)))
 
 (defn fill-temp-shelf [state temp]
-  (->> (repeatedly (shelves/shelf-capacity temp) gen-cooked-order)
-       (map #(assoc % :temp temp))
+  (->> (repeatedly (shelves/shelf-capacity temp) #(gen-cooked-order temp))
        (reduce shelves/put-on-temp-shelf state)))
 
 (defn fill-overflow-shelf [state]
@@ -58,7 +64,36 @@
                              :hot #(= 1 (count %))}
                    :event [:shelf/placed-on-overflow-replacing-existing
                            {:id id}]}
-                  (shelves/cook-and-shelve state order now)))))
+                  (shelves/cook-and-shelve state order now))))
+
+    (testing "Chooses the overflow order with the emptiest shelf"
+      ;; We make a state that has full overflow, full frozen shelf,
+      ;; almost full :cold shelf and an empty :hot shelf. There is a
+      ;; single :hot order on the overflow shelf. When we add a frozen
+      ;; order it should go to the overflow shelf and the hot order
+      ;; should be moved to its proper shelf since that is the
+      ;; emptiest one.
+      (let [cold-shelf-orders (repeatedly (dec (shelves/shelf-capacity :cold))
+                                          #(gen-order :cold))
+            {id-to-replace :id, :as order-to-replace} (gen-cooked-order :hot)
+            overflow-orders (concat (repeatedly 7 #(gen-order :cold))
+                                    (repeatedly 7 #(gen-order :frozen))
+                                    [order-to-replace])
+            state (-> shelves/empty-state
+                      (fill-temp-shelf :frozen)
+                      (assoc-in [:shelves :overflow]
+                                (zipmap (map :id overflow-orders)
+                                        overflow-orders)))
+            state' (reduce (fn [state order]
+                             (shelves/cook-and-shelve state order now))
+                           state
+                           cold-shelf-orders)]
+        (is (match? {:shelves {:hot {id-to-replace order-to-replace}
+                               :overflow {id order}}
+                     :event [:shelf/placed-on-overflow-replacing-existing
+                             {:id id
+                              :replaced-overflow-order id-to-replace}]}
+                    (shelves/cook-and-shelve state' order now))))))
 
   (testing "Full shelf and full overflow, no room to replace
               existing overflow order"

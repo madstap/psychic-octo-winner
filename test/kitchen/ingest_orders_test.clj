@@ -1,8 +1,8 @@
 (ns kitchen.ingest-orders-test
   (:require
+   [clojure.core.async :as async]
    [clojure.test :refer [deftest testing is]]
-   [kitchen.ingest-orders :as ingest-orders]
-   [clojure.core.async :as async]))
+   [kitchen.ingest-orders :as ingest-orders]))
 
 (def example-orders
   [{:id #uuid "a8cfcb76-7f24-4420-a5ba-d46dd77bdffd",

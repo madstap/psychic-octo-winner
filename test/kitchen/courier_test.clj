@@ -1,10 +1,11 @@
 (ns kitchen.courier-test
-  (:require [kitchen.courier :as courier]
-            [clojure.test :refer [deftest is]]
-            [matcher-combinators.test :refer [match?]]
-            [clojure.core.async :as async]
-            [kitchen.shelves :as shelves]
-            [tick.core :as tick]))
+  (:require
+   [clojure.core.async :as async]
+   [clojure.test :refer [deftest is]]
+   [kitchen.courier :as courier]
+   [kitchen.shelves :as shelves]
+   [matcher-combinators.test :refer [match?]]
+   [tick.core :as tick]))
 
 (def now (tick/instant "2023-03-13T00:00:00Z"))
 

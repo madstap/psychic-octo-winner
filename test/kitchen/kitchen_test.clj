@@ -1,8 +1,10 @@
 (ns kitchen.kitchen-test
-  (:require [kitchen.kitchen :as kitchen]
-            [clojure.test :refer [deftest is]]
-            [clojure.core.async :as async]
-            [kitchen.shelves :as shelves]))
+  (:require
+   [clojure.core.async :as async]
+   [clojure.test :refer [deftest is]]
+   [kitchen.kitchen :as kitchen]
+   [kitchen.shelves :as shelves]
+   [matcher-combinators.test :refer [match?]]))
 
 (def example-orders
   [{:id #uuid "a8cfcb76-7f24-4420-a5ba-d46dd77bdffd",

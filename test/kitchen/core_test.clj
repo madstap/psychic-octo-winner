@@ -1,12 +1,12 @@
 (ns kitchen.core-test
-  (:require [kitchen.core :as core]
-            [clojure.test :refer [deftest testing is]]))
-
+  (:require
+   [clojure.test :refer [deftest testing is]]
+   [kitchen.core :as core]
+   [matcher-combinators.test :refer [match?]]))
 
 (def order-ids
   [#uuid "a8cfcb76-7f24-4420-a5ba-d46dd77bdffd"
    #uuid "7f682ade-8375-4ef4-aa9b-45440f361268"])
-
 
 (deftest end-to-end-test
   (testing "The applications reads the file, does the work and finishes"

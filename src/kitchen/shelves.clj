@@ -65,7 +65,7 @@
                 (assoc :event [:shelf/placed-on-overflow-replacing-existing
                                {:id id
                                 :replaced-overflow-order overflow-id}])))
-          (let [waste-order (rand-nth (:overflow shelves))]
+          (let [waste-order (rand-nth (vals (:overflow shelves)))]
             (-> state
                 (discard-overflow-order waste-order)
                 (put-on-overflow-shelf cooked-order)

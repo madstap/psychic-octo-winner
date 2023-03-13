@@ -19,8 +19,8 @@
 (deftest start-kitchen!-test
   (let [*logs (atom [])
         ctx {:orders example-orders
-             :ingest-rate 1000
-             :pickup-time [0.001 0.002]
+             :ingest-rate 100
+             :pickup-time [0.1 0.2]
              :log (fn [event data]
                     (swap! *logs conj [event data]))}
         {:keys [kitchen-chan *state]} (kitchen/start-kitchen! ctx)]

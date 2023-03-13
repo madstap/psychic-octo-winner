@@ -52,9 +52,9 @@
         courier-chan (courier/pickup-orders! ctx)]
     (async/>!! orders-to-pickup-chan order)
     ;; Sleep long enough that we know the previous courier has finished
-    (Thread/sleep 5)
+    (Thread/sleep 10)
     (async/>!! orders-to-pickup-chan overflow-order)
-    (Thread/sleep 5)
+    (Thread/sleep 10)
     (async/>!! orders-to-pickup-chan discarded-order)
     (async/close! orders-to-pickup-chan)
     (async/<!! courier-chan)

@@ -38,9 +38,13 @@
   (let [shelf-counts (update-vals shelves count)]
     (apply min-key #(shelf-counts (:temp %)) orders)))
 
-(defn put-on-temp-shelf
-  [state {:keys [temp id] :as order}]
+(defn put-on-temp-shelf [state {:keys [temp id] :as order}]
   (assoc-in state [:shelves temp id] order))
+
+(defn move-from-overflow-to-temp-shelf [state {:keys [temp id] :as order}]
+  (-> state
+      (assoc-in [:shelves temp id] order)
+      (update-in [:shelves :overflow] dissoc id)))
 
 (defn put-on-overflow-shelf [state {:keys [id] :as order}]
   (assoc-in state [:shelves :overflow id] order))
@@ -64,7 +68,7 @@
           (let [{overflow-id :id, :as overflow-order}
                 (best-overflow-order-to-replace shelves allowable-orders)]
             (-> state
-                (put-on-temp-shelf overflow-order)
+                (move-from-overflow-to-temp-shelf overflow-order)
                 (put-on-overflow-shelf cooked-order)
                 (assoc :event [:shelf/placed-on-overflow-replacing-existing
                                {:id id

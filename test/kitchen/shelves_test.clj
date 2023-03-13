@@ -87,13 +87,16 @@
             state' (reduce (fn [state order]
                              (shelves/cook-and-shelve state order now))
                            state
-                           cold-shelf-orders)]
+                           cold-shelf-orders)
+            state-after (shelves/cook-and-shelve state' order now)]
         (is (match? {:shelves {:hot {id-to-replace order-to-replace}
                                :overflow {id order}}
                      :event [:shelf/placed-on-overflow-replacing-existing
                              {:id id
                               :replaced-overflow-order id-to-replace}]}
-                    (shelves/cook-and-shelve state' order now))))))
+                    state-after))
+        (is (match? {:shelves {:overflow #(not (contains? % id-to-replace))}}
+                    state-after)))))
 
   (testing "Full shelf and full overflow, no room to replace
               existing overflow order"

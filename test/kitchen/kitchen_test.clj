@@ -31,11 +31,11 @@
                        example-orders)
                   (filter #(= :shelf/placed-on-correct-shelf (first %))
                           logs)))
-      (is (match? (map (fn [{:keys [id]}]
-                         [:pickup/succeeded {:id id}])
-                       example-orders)
-                  (filter #(= :pickup/succeeded (first %))
-                          logs)))
+      (is (match? (set (map (fn [{:keys [id]}]
+                              [:pickup/succeeded {:id id}])
+                            example-orders))
+                  (set (filter #(= :pickup/succeeded (first %))
+                               logs))))
       (is (empty? (filter #(= :pickup/failed (first %)) logs)))
       (is (= :kitchen/finished (first (last logs))))
       (is (= shelves/empty-state

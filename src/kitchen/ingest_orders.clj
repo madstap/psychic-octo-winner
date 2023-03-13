@@ -1,7 +1,6 @@
 (ns kitchen.ingest-orders
   (:require
    [clojure.core.async :as async]
-   [integrant.core :as ig]
    [kitchen.util.files :as util.fs]))
 
 (defn parse-order
@@ -29,9 +28,14 @@
         (async/<! (async/timeout ingest-wait-ms))
         (recur more-orders)))))
 
-(defmethod ig/init-key ::json-file-ingester [_ {:keys [file-path ingest-rate]}]
-  (fn [orders-chan]
-    (ingest-orders orders-chan ingest-rate (read-json-file file-path))))
+(defn ingest!
+  "Puts each order onto `orders-chan` at a rate of `ingest-rate`
+  orders per second.  Returns a channel that closes after all orders
+  have been ingested. The orders either come from `orders-file`, a
+  json file with an array of orders objects, or `orders`, a seqable of
+  orders."
+  [{:keys [orders-chan orders-file ingest-rate orders]}]
+  (ingest-orders orders-chan ingest-rate (or orders (read-json-file orders-file))))
 
 
 (comment

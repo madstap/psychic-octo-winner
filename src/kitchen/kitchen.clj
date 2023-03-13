@@ -1,4 +1,6 @@
 (ns kitchen.kitchen
+  "This namespace implements the main process in the application. The public api
+  is the start-kitchen! function."
   (:require
    [clojure.core.async :as async]
    [kitchen.courier :as courier]

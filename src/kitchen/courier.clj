@@ -1,6 +1,6 @@
 (ns kitchen.courier
-  "Implements the logic for couriers picking up orders. The entrypoint
-  to this namespace is the pickup-orders! function."
+  "Implements the logic for couriers picking up orders. The public api
+  of this namespace is the pickup-orders! function."
   (:require
    [clojure.core.async :as async]
    [kitchen.shelves :as shelves]))

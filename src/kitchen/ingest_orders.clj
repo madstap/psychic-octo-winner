@@ -1,8 +1,8 @@
 (ns kitchen.ingest-orders
-  (:require [clojure.data.json :as json]
-            [clojure.core.async :as async]
-            [clojure.java.io :as io]
-            [camel-snake-kebab.core :as csk]))
+  (:require
+   [clojure.core.async :as async]
+   [integrant.core :as ig]
+   [kitchen.util.files :as util.fs]))
 
 (defn parse-order
   "Takes an order and parses the values from strings to proper clojure types."
@@ -15,8 +15,7 @@
   "Takes the name of a json file assumed to contain an array of order objects
   and returns a sequence of orders."
   [file-name]
-  (map parse-order (-> (io/reader file-name)
-                       (json/read :key-fn csk/->kebab-case-keyword))))
+  (map parse-order (util.fs/read-json-file file-name)))
 
 (defn ingest-orders
   "Puts each order from `orders` (a seqable of maps) onto `orders-chan` at a
@@ -30,19 +29,13 @@
         (async/<! (async/timeout ingest-wait-ms))
         (recur more-orders)))))
 
+(defmethod ig/init-key ::json-file-ingester [_ {:keys [file-path ingest-rate]}]
+  (fn [orders-chan]
+    (ingest-orders orders-chan ingest-rate (read-json-file file-path))))
+
 
 (comment
 
-  (def ch (async/chan))
-
-  (async/go-loop []
-    (when-some [order (async/<! ch)]
-      (clojure.pprint/pprint order)
-      (println)
-      (recur)))
-
-  (async/go
-    (async/<! (ingest-orders ch 2 (read-json-file "orders.json")))
-    (println "Finished ingesting orders"))
+  (def all-orders (read-json-file "orders.json"))
 
   )
